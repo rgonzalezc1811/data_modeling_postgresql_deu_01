@@ -18,8 +18,10 @@ define a Fact and Dimension tables.
   - [Song Dataset](#song-dataset)
   - [Log Dataset](#log-dataset)
 - [Development](#development)
-  - [Database Schema](#database-schema)
-    - [ERD](#erd)
+  - [Database](#database)
+    - [Schema](#schema)
+    - [Entity Relational Diagram (ERD)](#entity-relational-diagram-erd)
+    - [Local Database Setup](#local-database-setup)
   - [Files Description](#files-description)
   - [Tables Creation](#tables-creation)
   - [ETL Process](#etl-process)
@@ -162,7 +164,12 @@ This section contains general description and notations for the Data
 Modeling development.
 <br/><br/> <!-- Blank line -->
 
-## Database Schema
+## Database
+
+The following section indicates how the database is configured.
+<br/><br/> <!-- Blank line -->
+
+### Schema
 
 Using the `song_data` and `log_data` datasets, **star schema** schema
 is created, optimized for queries on song play analysis.
@@ -225,7 +232,7 @@ is created, optimized for queries on song play analysis.
     * weekday
     <br/><br/> <!-- Blank line -->
 
-### ERD
+### Entity Relational Diagram (ERD)
 
 <!-- Original image size [1448 1053] -->
 <br/><br/> <!-- Blank line -->
@@ -233,6 +240,46 @@ is created, optimized for queries on song play analysis.
   <img width="868" height="632" src="img/erd.png"/>
 </div>
 <br/><br/> <!-- Blank line -->
+
+### Local Database Setup
+
+1. Make sure the PostgreSQL proram is installed.
+2. Open `SQL Shell`, use the **Search** tool and type `psql`.
+3. Access under the following inputs:
+   1. Server: localhost
+   2. Database: postgres
+   3. Port: 5432
+   4. Username: postgres
+   5. Password: <Password_configured_at_installing_PostgreSQL>
+4. Verify if the `admin` does not exists, if the role exists, go to step
+   number _X_:
+   ```bash
+   \du
+   ```
+5. Create the `admin` role:
+   ```bash
+   CREATE ROLE admin WITH LOGIN ENCRYPTED PASSWORD '<password>';
+   ```
+6. Assign permissions to the created role:
+   ```bash
+   ALTER ROLE admin CREATEDB;
+   ```
+7. Quit the `SQL SHELL`
+   ```bash
+   \q
+   ```
+8. Open again the `SQL Shell`.
+9. Access as `admin`, use created password>
+   1. Server: localhost
+   2. Database: postgres
+   3. Port: 5432
+   4. Username: admin
+   5. Password: <Password_configured_at_creating_role_admin>
+10. Create the database:
+    ```bash
+    CREATE DATABASE data_modeling_postgres_01;
+    ```
+11. Quit `SQL Shell`.
 
 ## Files Description
 

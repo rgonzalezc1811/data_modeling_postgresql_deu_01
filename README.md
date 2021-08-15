@@ -64,7 +64,7 @@ repository folder, all data is located in the folder called **data**,
 the following diagram shows the expected directory tree of the data.
 
 ```bash
-<root_path>/data_modeling_postgresql/data
+<root_path>/data_modeling_postgresql_deu_01/data
 ├───log_data
 │   └───2018
 │       └───11
@@ -89,8 +89,8 @@ that song. The files are partitioned by the first three letters of each
 song's track ID. Below are filepaths of two files in the dataset.
 
 
-* `<root_path>/data/song_data/A/A/B/TRAABCL128F4286650.json`
-* `<root_path>/data/song_data/A/B/C/TRABCYE128F934CE1D.json`
+* `<root_path>/data_modeling_postgresql_deu_01/data/song_data/A/A/B/TRAABCL128F4286650.json`
+* `<root_path>/data_modeling_postgresql_deu_01/data/song_data/A/B/C/TRABCYE128F934CE1D.json`
 
 
 Below is an example of what a single song file looks like
@@ -122,8 +122,8 @@ configurations.
 The log files in the dataset are partitioned by year and month. Below
 are filepaths to two files in the dataset.
 
-* `<root_path>/data/log_data/2018/11/2018-11-12-events.json`
-* `<root_path>/data/log_data/2018/11/2018-11-13-events.json`
+* `<root_path>/data_modeling_postgresql_deu_01/data/log_data/2018/11/2018-11-12-events.json`
+* `<root_path>/data_modeling_postgresql_deu_01/data/log_data/2018/11/2018-11-13-events.json`
 
 To look at the `JSON` data within log_data files, create a pandas
 dataframe to read the data (code example below), after the code block

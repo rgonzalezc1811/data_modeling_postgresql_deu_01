@@ -22,13 +22,13 @@ songplay_table_drop = ("DROP TABLE songplay;\n")
 user_table_drop = ("DROP TABLE users;\n")
 song_table_drop = ("DROP TABLE songs;\n")
 artist_table_drop = ("DROP TABLE artists;\n")
-time_table_drop = ("DROP TABLE time;\n")
+time_table_drop = ("DROP TABLE \"time\";\n")
 
 # CREATE TABLES
 
 # Dimension Table 'time'
 time_table_create = (
-    "CREATE TABLE IF NOT EXISTS time\n"
+    "CREATE TABLE IF NOT EXISTS \"time\"\n"
     "(\n"
     "    start_time timestamp PRIMARY KEY,\n"
     "    hour smallint NOT NULL,\n"
@@ -86,7 +86,8 @@ song_table_create = (
     "    CHECK (artist_id > 0),\n"
     "    CHECK (year > 1900 AND year <= 2999),\n"
     "    CHECK (duration > 0),\n"
-    "    FOREIGN KEY (artist_id) REFERENCES artists ON DELETE SET NULL"
+    "    FOREIGN KEY (artist_id)\n"
+    "    REFERENCES artists (artist_id) ON DELETE SET NULL"
     ");\n"
 )
 
@@ -94,7 +95,7 @@ song_table_create = (
 songplay_table_create = (
     "CREATE TABLE IF NOT EXISTS songplay\n"
     "(\n"
-    "    songplay_id int,\n"
+    "    songplay_id int PRIMARY KEY,\n"
     "    start_time timestamp NOT NULL,\n"
     "    user_id int,\n"
     "    level varchar(32),\n"
@@ -102,7 +103,20 @@ songplay_table_create = (
     "    artist_id int,\n"
     "    session_id int,\n"
     "    location varchar(128),\n"
-    "    user_agent text\n"
+    "    user_agent text,\n"
+    "    CHECK (songplay_id > 0),\n"
+    "    CHECK (user_id > 0),\n"
+    "    CHECK (song_id > 0),\n"
+    "    CHECK (artist_id > 0),\n"
+    "    CHECK (session_id > 0),\n"
+    "    FOREIGN KEY (start_time)\n"
+    "    REFERENCES \"time\" (start_time),\n"
+    "    FOREIGN KEY (user_id)\n"
+    "    REFERENCES users (user_id) ON DELETE SET NULL,\n"
+    "    FOREIGN KEY (song_id)\n"
+    "    REFERENCES songs (song_id) ON DELETE SET NULL,\n"
+    "    FOREIGN KEY (artist_id)\n"
+    "    REFERENCES artists (artist_id) ON DELETE SET NULL\n"
     ");\n"
 )
 

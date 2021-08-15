@@ -1,7 +1,7 @@
 # **README** <!-- omit in toc -->
 # Data Modeling with PostgreSQL <!-- omit in toc -->
 
-<!-- Original image size [500, 457] -->
+<!-- Original image size [500 457] -->
 <div align="center">
   <img width="250" height="229" src="img/postgresql_logo.png"/>
 </div>
@@ -19,6 +19,7 @@ define a Fact and Dimension tables.
   - [Log Dataset](#log-dataset)
 - [Development](#development)
   - [Database Schema](#database-schema)
+    - [ERD](#erd)
   - [Files Description](#files-description)
   - [Tables Creation](#tables-creation)
   - [ETL Process](#etl-process)
@@ -223,6 +224,15 @@ is created, optimized for queries on song play analysis.
     * year
     * weekday
     <br/><br/> <!-- Blank line -->
+
+### ERD
+
+<!-- Original image size [1448 1053] -->
+<br/><br/> <!-- Blank line -->
+<div align="center">
+  <img width="868" height="632" src="img/erd.png"/>
+</div>
+<br/><br/> <!-- Blank line -->
 
 ## Files Description
 

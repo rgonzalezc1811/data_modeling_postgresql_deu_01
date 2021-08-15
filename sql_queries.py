@@ -9,7 +9,7 @@ Mantaniner: Rolando Gonzalez
 Version: 1.0.0
 """
 # Standard library imports
-# None
+import re
 
 # Third-party imports
 # None
@@ -35,13 +35,13 @@ time_table_create = (
     "    day smallint NOT NULL,\n"
     "    week smallint NOT NULL,\n"
     "    month smallint NOT NULL,\n"
-    "    year smallint NOT NULL,\n"
+    "    \"year\" smallint NOT NULL,\n"
     "    weekday smallint NOT NULL,\n"
     "    CHECK (hour >= 0 AND hour <= 23),\n"
     "    CHECK (day >= 1 AND day <= 31),\n"
     "    CHECK (week >= 1 AND week <= 53),\n"
     "    CHECK (month >= 1 AND month <= 12),\n"
-    "    CHECK (year > 1900 AND year <= 2999),\n"
+    "    CHECK (\"year\" > 1900 AND \"year\" <= 2999),\n"
     "    CHECK (weekday >= 1 AND weekday <= 8)\n"
     ");\n"
 )
@@ -63,13 +63,13 @@ user_table_create = (
 artist_table_create = (
     "CREATE TABLE IF NOT EXISTS artists\n"
     "(\n"
-    "    artist_id int PRIMARY KEY,\n"
+    "    artist_id char(18) PRIMARY KEY,\n"
     "    name varchar(32),\n"
     "    location varchar(128),\n"
     "    latitude numeric(7, 5),\n"
     "    longitude numeric(8, 5),\n"
     "    CHECK (latitude >= -90 AND latitude <= 90),\n"
-    "    CHECK (longitude >= -180 AND artist_id <= 180)\n"
+    "    CHECK (longitude >= -180 AND longitude <= 180)\n"
     ");\n"
 )
 
@@ -77,14 +77,12 @@ artist_table_create = (
 song_table_create = (
     "CREATE TABLE IF NOT EXISTS songs\n"
     "(\n"
-    "    song_id int PRIMARY KEY,\n"
+    "    song_id char(18) PRIMARY KEY,\n"
     "    title varchar(128),\n"
-    "    artist_id int,\n"
-    "    year smallint,\n"
+    "    artist_id char(18),\n"
+    "    \"year\" smallint,\n"
     "    duration numeric(8, 5),\n"
-    "    CHECK (song_id > 0),\n"
-    "    CHECK (artist_id > 0),\n"
-    "    CHECK (year > 1900 AND year <= 2999),\n"
+    "    CHECK (\"year\" >= 0),\n"
     "    CHECK (duration > 0),\n"
     "    FOREIGN KEY (artist_id)\n"
     "    REFERENCES artists (artist_id) ON DELETE SET NULL"
@@ -95,19 +93,15 @@ song_table_create = (
 songplay_table_create = (
     "CREATE TABLE IF NOT EXISTS songplay\n"
     "(\n"
-    "    songplay_id int PRIMARY KEY,\n"
+    "    songplay_id char(18) PRIMARY KEY,\n"
     "    start_time timestamp NOT NULL,\n"
     "    user_id int,\n"
     "    level varchar(32),\n"
-    "    song_id int,\n"
-    "    artist_id int,\n"
+    "    song_id char(18),\n"
+    "    artist_id char(18),\n"
     "    session_id int,\n"
     "    location varchar(128),\n"
     "    user_agent text,\n"
-    "    CHECK (songplay_id > 0),\n"
-    "    CHECK (user_id > 0),\n"
-    "    CHECK (song_id > 0),\n"
-    "    CHECK (artist_id > 0),\n"
     "    CHECK (session_id > 0),\n"
     "    FOREIGN KEY (start_time)\n"
     "    REFERENCES \"time\" (start_time),\n"
@@ -121,18 +115,69 @@ songplay_table_create = (
 )
 
 # INSERT RECORDS
+def artist_table_insert(dataframe, verbose=False):
+    """Query to insert data from dataframe 'songs'.
+
+    Insert the required data in the table 'artists'.
+
+    Parameters
+    ----------
+    dataframe : Pandas Dataframe
+        description -> Dataframe with the artist data
+        format -> Headers: [
+            "artist_id",
+            "artist_name",
+            "artist_location",
+            "artist_latitude",
+            "artist_longitude"
+        ]
+        options -> No apply
+
+    verbose : bool
+        description -> Print process workflow or results, useful for
+            debugging
+        format -> No apply
+        options -> No apply
+
+    Returns
+    -------
+    query : string
+        description -> The complete SQL statement
+        format -> No apply
+        options -> No apply
+    """
+    dataframe = str(dataframe.values.tolist())[1:-1]
+    dataframe = re.sub(r'\[', r'    (', dataframe)
+    dataframe = re.sub(r'\]', r')', dataframe)
+    dataframe = re.sub(r'\), ', r'),\n', dataframe)
+    dataframe = re.sub(r'nan', r'NULL', dataframe)
+    dataframe += '\n'
+    query = (
+        "INSERT INTO artists\n"
+        "(artist_id, name, location, latitude, longitude)\n"
+        "VALUES\n"
+        f"{dataframe}"
+        "ON CONFLICT (artist_id)\n"
+        "DO UPDATE SET\n"
+        "name = EXCLUDED.name,\n"
+        "location = EXCLUDED.location,\n"
+        "latitude = EXCLUDED.latitude,\n"
+        "longitude = EXCLUDED.longitude;\n"
+    )
+
+    if verbose:
+        print(f"SQL statement:\n{query}\n")
+
+    return query
+
+
+
+
 songplay_table_insert = ("""
 """)
 
 user_table_insert = ("""
 """)
-
-song_table_insert = ("""
-""")
-
-artist_table_insert = ("""
-""")
-
 
 time_table_insert = ("""
 """)

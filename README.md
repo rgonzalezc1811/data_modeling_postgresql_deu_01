@@ -310,10 +310,10 @@ The development include the completion of specific scripts:
 
 ## Tables Creation
   1. Write `CREATE` statements in `sql_queries.py` file to create each
-    table.
+     table.
   2. Write `DROP` statements in `sql_queries.py` file to drop each table
      if it exists.
-  3. Run `create_tables.py` to create the databasa and tables.
+  3. Run `create_tables.py` to create the database and tables.
   4. Run `test.ipynb` to confirm the creation of the tables with the
      correct columns. Make sure to close always the connection to the
      database after finishing working in the project.

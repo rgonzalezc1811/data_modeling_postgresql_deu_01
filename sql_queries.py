@@ -50,11 +50,12 @@ time_table_create = (
 user_table_create = (
     "CREATE TABLE IF NOT EXISTS users\n"
     "(\n"
-    "    user_id int,\n"
+    "    user_id int PRIMARY KEY,\n"
     "    first_name varchar(32),\n"
     "    last_name varchar(32),\n"
     "    gender CHAR(1),\n"
-    "    level varchar(32)\n"
+    "    level varchar(32),\n"
+    "    CHECK (user_id >= 0)\n"
     ");\n"
 )
 
@@ -62,11 +63,13 @@ user_table_create = (
 artist_table_create = (
     "CREATE TABLE IF NOT EXISTS artists\n"
     "(\n"
-    "    artist_id int,\n"
+    "    artist_id int PRIMARY KEY,\n"
     "    name varchar(32),\n"
     "    location varchar(128),\n"
     "    latitude numeric(7, 5),\n"
-    "    longitude numeric(8, 5)\n"
+    "    longitude numeric(8, 5),\n"
+    "    CHECK (latitude >= -90 AND latitude <= 90),\n"
+    "    CHECK (longitude >= -180 AND artist_id <= 180)\n"
     ");\n"
 )
 

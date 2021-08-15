@@ -18,11 +18,11 @@ Version: 1.0.0
 # None
 
 # DROP TABLES
-songplay_table_drop = ("DROP TABLE songplay;\n")
-user_table_drop = ("DROP TABLE users;\n")
-song_table_drop = ("DROP TABLE songs;\n")
-artist_table_drop = ("DROP TABLE artists;\n")
-time_table_drop = ("DROP TABLE \"time\";\n")
+songplay_table_drop = ("DROP TABLE IF EXISTS songplay;\n")
+time_table_drop = ("DROP TABLE IF EXISTS \"time\";\n")
+user_table_drop = ("DROP TABLE IF EXISTS users;\n")
+song_table_drop = ("DROP TABLE IF EXISTS songs;\n")
+artist_table_drop = ("DROP TABLE IF EXISTS artists;\n")
 
 # CREATE TABLES
 
@@ -119,8 +119,6 @@ songplay_table_create = (
     "    REFERENCES artists (artist_id) ON DELETE SET NULL\n"
     ");\n"
 )
-
-print(time_table_create)
 
 # INSERT RECORDS
 songplay_table_insert = ("""

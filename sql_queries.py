@@ -77,11 +77,16 @@ artist_table_create = (
 song_table_create = (
     "CREATE TABLE IF NOT EXISTS songs\n"
     "(\n"
-    "    song_id int,\n"
+    "    song_id int PRIMARY KEY,\n"
     "    title varchar(128),\n"
     "    artist_id int,\n"
     "    year smallint,\n"
-    "    duration numeric(8, 5)\n"
+    "    duration numeric(8, 5),\n"
+    "    CHECK (song_id > 0),\n"
+    "    CHECK (artist_id > 0),\n"
+    "    CHECK (year > 1900 AND year <= 2999),\n"
+    "    CHECK (duration > 0),\n"
+    "    FOREIGN KEY (artist_id) REFERENCES artists ON DELETE SET NULL"
     ");\n"
 )
 

@@ -64,7 +64,7 @@ artist_table_create = (
     "CREATE TABLE IF NOT EXISTS artists\n"
     "(\n"
     "    artist_id char(18) PRIMARY KEY,\n"
-    "    name varchar(32),\n"
+    "    \"name\" varchar(32),\n"
     "    location varchar(128),\n"
     "    latitude numeric(7, 5),\n"
     "    longitude numeric(8, 5),\n"
@@ -151,15 +151,16 @@ def artist_table_insert(dataframe, verbose=False):
     dataframe = re.sub(r'\]', r')', dataframe)
     dataframe = re.sub(r'\), ', r'),\n', dataframe)
     dataframe = re.sub(r'nan', r'NULL', dataframe)
+    dataframe = re.sub("<single_quote_tag>", "''", dataframe)
     dataframe += '\n'
     query = (
         "INSERT INTO artists\n"
-        "(artist_id, name, location, latitude, longitude)\n"
+        "(artist_id, \"name\", location, latitude, longitude)\n"
         "VALUES\n"
         f"{dataframe}"
         "ON CONFLICT (artist_id)\n"
         "DO UPDATE SET\n"
-        "name = EXCLUDED.name,\n"
+        "\"name\" = EXCLUDED.\"name\",\n"
         "location = EXCLUDED.location,\n"
         "latitude = EXCLUDED.latitude,\n"
         "longitude = EXCLUDED.longitude;\n"
@@ -170,7 +171,57 @@ def artist_table_insert(dataframe, verbose=False):
 
     return query
 
+def song_table_insert(dataframe, verbose=False):
+    """Query to insert data from dataframe 'songs'.
 
+    Insert the required data in the table 'songs'.
+
+    Parameters
+    ----------
+    dataframe : Pandas Dataframe
+        description -> Dataframe with the songs data
+        format -> Headers: [
+            "song_id", "title", "artist_id", "\"year\"", "duration"
+        ]
+        options -> No apply
+
+    verbose : bool
+        description -> Print process workflow or results, useful for
+            debugging
+        format -> No apply
+        options -> No apply
+
+    Returns
+    -------
+    query : string
+        description -> The complete SQL statement
+        format -> No apply
+        options -> No apply
+    """
+    dataframe = str(dataframe.values.tolist())[1:-1]
+    dataframe = re.sub(r'\[', r'    (', dataframe)
+    dataframe = re.sub(r'\]', r')', dataframe)
+    dataframe = re.sub(r'\), ', r'),\n', dataframe)
+    dataframe = re.sub(r'nan', r'NULL', dataframe)
+    dataframe = re.sub("<single_quote_tag>", "''", dataframe)
+    dataframe += '\n'
+    query = (
+        "INSERT INTO songs\n"
+        "(song_id, title, artist_id, \"year\", duration)\n"
+        "VALUES\n"
+        f"{dataframe}"
+        "ON CONFLICT (song_id)\n"
+        "DO UPDATE SET\n"
+        "title = EXCLUDED.title,\n"
+        "artist_id = EXCLUDED.artist_id,\n"
+        "\"year\" = EXCLUDED.\"year\",\n"
+        "duration = EXCLUDED.duration;\n"
+    )
+
+    if verbose:
+        print(f"SQL statement:\n{query}\n")
+
+    return query
 
 
 songplay_table_insert = ("""

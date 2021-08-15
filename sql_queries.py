@@ -223,14 +223,67 @@ def song_table_insert(dataframe, verbose=False):
 
     return query
 
+def time_table_insert(dataframe, verbose=False): 
+    """Query to insert data from dataframe 'logs'.
 
+    Insert the required data in the table 'time'.
+
+    Parameters
+    ----------
+    dataframe : Pandas Dataframe
+        description -> Dataframe with the time data
+        format -> Headers: [
+            "start_time",
+            "hour",
+            "day",
+            "week",
+            "month",
+            "year",
+            "weekday"
+        ]
+        options -> No apply
+
+    verbose : bool
+        description -> Print process workflow or results, useful for
+            debugging
+        format -> No apply
+        options -> No apply
+
+    Returns
+    -------
+    query : string
+        description -> The complete SQL statement
+        format -> No apply
+        options -> No apply
+    """
+    dataframe = str(dataframe.values.tolist())[1:-1]
+    dataframe = re.sub(r'\[', r'    (', dataframe)
+    dataframe = re.sub(r'\]', r')', dataframe)
+    dataframe = re.sub(r'\), ', r'),\n', dataframe)
+    dataframe += '\n'
+    query = (
+        "INSERT INTO time\n"
+        "(start_time, hour, day, week, month, year, weekday)\n"
+        "VALUES\n"
+        f"{dataframe}"
+        "ON CONFLICT (start_time)\n"
+        "DO UPDATE SET\n"
+        "hour = EXCLUDED.hour,\n"
+        "day = EXCLUDED.day,\n"
+        "week = EXCLUDED.week,\n"
+        "month = EXCLUDED.month,\n"
+        "year = EXCLUDED.year,\n"
+        "weekday = EXCLUDED.weekday;\n"
+    )
+
+    if verbose:
+        print(f"SQL statement:\n{query}\n")
+
+    return query
 songplay_table_insert = ("""
 """)
 
 user_table_insert = ("""
-""")
-
-time_table_insert = ("""
 """)
 
 # FIND SONGS

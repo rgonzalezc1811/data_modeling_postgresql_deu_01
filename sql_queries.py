@@ -30,13 +30,19 @@ time_table_drop = ("DROP TABLE time;\n")
 time_table_create = (
     "CREATE TABLE IF NOT EXISTS time\n"
     "(\n"
-    "    start_time TIMESTAMP,\n"
-    "    hour SMALLINT,\n"
-    "    day SMALLINT,\n"
-    "    week SMALLINT,\n"
-    "    month SMALLINT,\n"
-    "    year SMALLINT,\n"
-    "    weekday SMALLINT\n"
+    "    start_time timestamp PRIMARY KEY,\n"
+    "    hour smallint NOT NULL,\n"
+    "    day smallint NOT NULL,\n"
+    "    week smallint NOT NULL,\n"
+    "    month smallint NOT NULL,\n"
+    "    year smallint NOT NULL,\n"
+    "    weekday smallint NOT NULL,\n"
+    "    CHECK (hour >= 0 AND hour <= 23),\n"
+    "    CHECK (day >= 1 AND day <= 31),\n"
+    "    CHECK (week >= 1 AND week <= 53),\n"
+    "    CHECK (month >= 1 AND month <= 12),\n"
+    "    CHECK (year > 1900 AND year <= 2999),\n"
+    "    CHECK (weekday >= 1 AND weekday <= 8)\n"
     ");\n"
 )
 
@@ -44,11 +50,11 @@ time_table_create = (
 user_table_create = (
     "CREATE TABLE IF NOT EXISTS users\n"
     "(\n"
-    "    user_id INT,\n"
-    "    first_name VARCHAR(32),\n"
-    "    last_name VARCHAR(32),\n"
+    "    user_id int,\n"
+    "    first_name varchar(32),\n"
+    "    last_name varchar(32),\n"
     "    gender CHAR(1),\n"
-    "    level VARCHAR(32)\n"
+    "    level varchar(32)\n"
     ");\n"
 )
 
@@ -56,11 +62,11 @@ user_table_create = (
 artist_table_create = (
     "CREATE TABLE IF NOT EXISTS artists\n"
     "(\n"
-    "    artist_id INT,\n"
-    "    name VARCHAR(32),\n"
-    "    location VARCHAR(128),\n"
-    "    latitude NUMERIC(7, 5),\n"
-    "    longitude NUMERIC(8, 5)\n"
+    "    artist_id int,\n"
+    "    name varchar(32),\n"
+    "    location varchar(128),\n"
+    "    latitude numeric(7, 5),\n"
+    "    longitude numeric(8, 5)\n"
     ");\n"
 )
 
@@ -68,11 +74,11 @@ artist_table_create = (
 song_table_create = (
     "CREATE TABLE IF NOT EXISTS songs\n"
     "(\n"
-    "    song_id INT,\n"
-    "    title VARCHAR(128),\n"
-    "    artist_id INT,\n"
-    "    year SMALLINT,\n"
-    "    duration NUMERIC(8, 5)\n"
+    "    song_id int,\n"
+    "    title varchar(128),\n"
+    "    artist_id int,\n"
+    "    year smallint,\n"
+    "    duration numeric(8, 5)\n"
     ");\n"
 )
 
@@ -80,15 +86,15 @@ song_table_create = (
 songplay_table_create = (
     "CREATE TABLE IF NOT EXISTS songplay\n"
     "(\n"
-    "    songplay_id INT,\n"
-    "    start_time TIMESTAMP NOT NULL,\n"
-    "    user_id INT,\n"
-    "    level VARCHAR(32),\n"
-    "    song_id INT,\n"
-    "    artist_id INT,\n"
-    "    session_id INT,\n"
-    "    location VARCHAR(128),\n"
-    "    user_agent TEXT\n"
+    "    songplay_id int,\n"
+    "    start_time timestamp NOT NULL,\n"
+    "    user_id int,\n"
+    "    level varchar(32),\n"
+    "    song_id int,\n"
+    "    artist_id int,\n"
+    "    session_id int,\n"
+    "    location varchar(128),\n"
+    "    user_agent text\n"
     ");\n"
 )
 

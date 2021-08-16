@@ -37,7 +37,7 @@ def create_database():
     try:
         conn = psycopg2.connect(
             user="admin",
-            password="<password>",
+            password="98573Hgte", # <password>
             host="localhost", 
             port="5432",
             dbname="data_modeling_postgres_01"
@@ -64,7 +64,7 @@ def create_database():
     try:
         conn = psycopg2.connect(
             user="admin",
-            password="<password>",
+            password="98573Hgte", # <password>
             host="localhost", 
             port="5432",
             dbname="sparkifydb"

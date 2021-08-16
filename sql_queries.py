@@ -55,7 +55,8 @@ user_table_create = (
     "    last_name varchar(32),\n"
     "    gender CHAR(1),\n"
     "    level varchar(32),\n"
-    "    CHECK (user_id >= 0)\n"
+    "    CHECK (user_id >= 0),\n"
+    "    CHECK (gender = 'F' OR gender = 'M')\n"
     ");\n"
 )
 
@@ -103,6 +104,7 @@ songplay_table_create = (
     "    location varchar(128),\n"
     "    user_agent text,\n"
     "    CHECK (session_id > 0),\n"
+    "    CHECK (user_id > 0),\n"
     "    FOREIGN KEY (start_time)\n"
     "    REFERENCES \"time\" (start_time),\n"
     "    FOREIGN KEY (user_id)\n"
@@ -280,10 +282,63 @@ def time_table_insert(dataframe, verbose=False):
         print(f"SQL statement:\n{query}\n")
 
     return query
-songplay_table_insert = ("""
-""")
 
-user_table_insert = ("""
+def user_table_insert(dataframe, verbose=False):
+    """Query to insert data from dataframe 'logs'.
+
+    Insert the required data in the table 'users'.
+
+    Parameters
+    ----------
+    dataframe : Pandas Dataframe
+        description -> Dataframe with the uer data
+        format -> Headers: [
+            "user_id",
+            "first_name",
+            "last_name",
+            "gender",
+            "level"
+        ]
+        options -> No apply
+
+    verbose : bool
+        description -> Print process workflow or results, useful for
+            debugging
+        format -> No apply
+        options -> No apply
+
+    Returns
+    -------
+    query : string
+        description -> The complete SQL statement
+        format -> No apply
+        options -> No apply
+    """
+    dataframe = str(dataframe.values.tolist())[1:-1]
+    dataframe = re.sub(r'\[', r'    (', dataframe)
+    dataframe = re.sub(r'\]', r')', dataframe)
+    dataframe = re.sub(r'\), ', r'),\n', dataframe)
+    dataframe = re.sub("<single_quote_tag>", "''", dataframe)
+    dataframe += '\n'
+    query = (
+        "INSERT INTO users\n"
+        "(user_id, first_name, last_name, gender, level)\n"
+        "VALUES\n"
+        f"{dataframe}"
+        "ON CONFLICT (user_id)\n"
+        "DO UPDATE SET\n"
+        "first_name = EXCLUDED.first_name,\n"
+        "last_name = EXCLUDED.last_name,\n"
+        "gender = EXCLUDED.gender,\n"
+        "level = EXCLUDED.level;\n"
+    )
+
+    if verbose:
+        print(f"SQL statement:\n{query}\n")
+
+    return query
+
+songplay_table_insert = ("""
 """)
 
 # FIND SONGS

@@ -53,10 +53,14 @@ def process_song_file(cur, filepath):
 
 def process_log_file(cur, filepath):
     # open log file
-    df = None
+    df = pd.read_json(filepath, lines=True)
 
     # filter by NextSong action
-    df = None
+    df = df[df["page"] == 'NextSong']
+
+    print(df)
+    print(df.shape)
+    return
 
     # convert timestamp column to datetime
     t = None
@@ -92,7 +96,6 @@ def process_log_file(cur, filepath):
         songplay_data = None
         cur.execute(sq.songplay_table_insert, songplay_data)
 
-
 def process_data(cur, conn, filepath, func):
     # Get all files matching extension from directory
     all_files = []
@@ -111,7 +114,6 @@ def process_data(cur, conn, filepath, func):
         conn.commit()
         print('{}/{} files processed.'.format(i, num_files))
 
-
 def main():
     conn = psycopg2.connect(
         user="admin",
@@ -123,12 +125,10 @@ def main():
     cur = conn.cursor()
 
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
-    conn.close()
-    sys.exit(0)
     process_data(cur, conn, filepath='data/log_data', func=process_log_file)
 
     conn.close()
-
+    sys.exit()
 
 if __name__ == "__main__":
     main()

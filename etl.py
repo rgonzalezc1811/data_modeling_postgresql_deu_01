@@ -58,46 +58,104 @@ def process_log_file(cur, filepath):
     # filter by NextSong action
     df = df[df["page"] == 'NextSong']
 
-    print(df)
-    print(df.shape)
-    return
-
     # convert timestamp column to datetime
-    t = None
+    df["ts"] = pd.to_datetime(df["ts"], unit='ms')
     
     # insert time data records
-    time_data = None
-    column_labels = None
-    time_df = None
+    time_data = list(
+        map(
+            lambda item: [
+                item.strftime('%Y-%m-%dT%H:%M:%S'),
+                item.hour,
+                item.day,
+                item.week,
+                item.month,
+                item.year,
+                item.weekday() + 1
+            ],
+            df["ts"]
+        )
+    )
+    column_labels = [
+        'start_time', 'hour', 'day', 'week', 'month', 'year', 'weekday'
+    ]
+    time_list_dict = [dict(zip(column_labels, row)) for row in time_data]
+    time_df = pd.DataFrame(time_list_dict)
+    time_df = time_df.drop_duplicates()
 
-    for i, row in time_df.iterrows():
-        cur.execute(sq.time_table_insert, list(row))
+    for _, row in time_df.iterrows():
+        cur.execute(sq.time_table_insert(time_df))
 
     # load user table
-    user_df = None
+    columns = ["userId", "firstName", "lastName", "gender", "level"]
+    user_df = df[columns].copy()
+    user_df[:]["firstName"] = user_df["firstName"].map(
+        single_quote_converter, na_action='ignore'
+    )
+    user_df[:]["lastName"] = user_df["lastName"].map(
+        single_quote_converter, na_action='ignore'
+    )
+    user_df[:]["gender"] = user_df["gender"].str.upper()
+    user_df[:]["userId"] = user_df["userId"].astype(str)
+    user_df = user_df.drop_duplicates()
+    user_df = user_df.drop_duplicates(subset='userId', keep='last')
 
     # insert user records
-    for i, row in user_df.iterrows():
-        cur.execute(sq.user_table_insert, row)
+    for _, row in user_df.iterrows():
+        cur.execute(sq.user_table_insert(user_df))
 
-    # insert songplay records
-    for index, row in df.iterrows():
-        
+    # Prepare df
+    columns = [
+        "ts",
+        "userId",
+        "level",
+        "song",
+        "artist",
+        "length",
+        "sessionId",
+        "location",
+        "userAgent"
+    ]
+    df = df[columns]
+
+    # Format timestamp tp be upload in the database
+    df["ts"] = df["ts"].dt.strftime('%Y-%m-%dT%H:%M:%S')
+
+    # Apply filtering of single quotes
+    df[:]["song"] = df["song"].map(
+        single_quote_converter, na_action='ignore'
+    )
+    df[:]["artist"] = df["artist"].map(
+        single_quote_converter, na_action='ignore'
+    )
+    df[:]["location"] = df["location"].map(
+        single_quote_converter, na_action='ignore'
+    )
+
+    for _, row in df.iterrows():
         # get songid and artistid from song and artist tables
-        cur.execute(sq.song_select, (row.song, row.artist, row.length))
+        cur.execute(
+            sq.song_select(
+                dataframe=pd.DataFrame([row[["song", "artist", "length"]]])
+            )
+        )
         results = cur.fetchone()
-        
+
         if results:
             songid, artistid = results
         else:
-            songid, artistid = None, None
+            songid, artistid = 'nan', 'nan'
 
+        songplay_data = pd.DataFrame([row])
         # insert songplay record
-        songplay_data = None
-        cur.execute(sq.songplay_table_insert, songplay_data)
+        songplay_data = songplay_data.drop(columns=["length"])
+        songplay_data["artist"] = artistid
+        songplay_data["song"] = songid
+
+        cur.execute(sq.songplay_table_insert(dataframe=songplay_data))
 
 def process_data(cur, conn, filepath, func):
-    # Get all files matching extension from directory
+    # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
         files = glob.glob(os.path.join(root,'*.json'))
@@ -117,7 +175,7 @@ def process_data(cur, conn, filepath, func):
 def main():
     conn = psycopg2.connect(
         user="admin",
-        password="98573Hgte", # <password>
+        password="<password>",
         host="localhost",
         port="5432",
         dbname="sparkifydb"

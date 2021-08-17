@@ -26,6 +26,8 @@ define a Fact and Dimension tables.
   - [Tables Creation](#tables-creation)
   - [ETL Process](#etl-process)
   - [ETL Pipeline](#etl-pipeline)
+  - [Results](#results)
+  - [Discussion](#discussion)
 <br/><br/> <!-- Blank line -->
 
 # Introduction
@@ -338,13 +340,105 @@ Run `test.ipynb` to confirm the records were successfully inserted into
 each table.
 <br><br> <!-- Blank line -->
 
-> TODOS:
-> 
-> 1. Document processes in the README.md
-> 2. Discuss the purpose of the database in the context of the startup,
->    Sparkify, and their analytical goals.
-> 3. State and justify the database schema design and ETL pipeline.
-> 4. Provide example queries and results for song play analysis
->    (Optional).
+## Results
+
+The following images shows the final tables content after executing the
+finished `etl.py` script.
+
+<!-- Original image size [1279 428] -->
+<br/><br/> <!-- Blank line -->
+<div align="center">
+  <img width="895" height="300" src="img/artists_full.png"/>
+</div>
+<br/><br/> <!-- Blank line -->
+
+<!-- Original image size [1282 447] -->
+<br/><br/> <!-- Blank line -->
+<div align="center">
+  <img width="897" height="313" src="img/songs_full.png"/>
+</div>
+<br/><br/> <!-- Blank line -->
+
+<!-- Original image size [1083 334] -->
+<br/><br/> <!-- Blank line -->
+<div align="center">
+  <img width="758" height="234" src="img/time_full.png"/>
+</div>
+<br/><br/> <!-- Blank line -->
+
+<!-- Original image size [1078 374] -->
+<br/><br/> <!-- Blank line -->
+<div align="center">
+  <img width="755" height="262" src="img/users_full.png"/>
+</div>
+<br/><br/> <!-- Blank line -->
+
+<!-- Original image size [1340 505] -->
+<br/><br/> <!-- Blank line -->
+<div align="center">
+  <img width="938" height="354" src="img/songplays_full.png"/>
+</div>
+<br/><br/> <!-- Blank line -->
+
+## Discussion
+
+The current database schema is focused on how frequent an user uses the
+platform and identify which songs and artist are frequently heard.
+
+Based on the `sparkify` database, it is possible to retrieve different
+metrics, some of them are:
+
+1. How many users pays for the platform use? 
+
+```sql
+SELECT u."level", COUNT(u."level")
+FROM users u
+GROUP BY u."level";
+```
+
+Query result:
+
+| level       | count       |
+| ----------- | ----------- |
+| free        | 74          |
+| paid        | 22          |
+
+The intention is users paid for the use of the platform, and the metrics
+shows that less than 25% of users pay, comparing the number of paid
+licenses per month could indicates if a marketing campaign is working or
+not.
+
+2. What are the most frequent hours the users use the platform?
+
+```sql
+SELECT t."hour", COUNT(t."hour") AS frequency
+FROM songplay sp
+JOIN "time" t
+ON sp.start_time = t.start_time
+GROUP BY t."hour"
+ORDER BY frequency DESC
+LIMIT 5;
+```
+
+Query result:
+| hour        | frequency   |
+| ----------- | ----------- |
+| 16          | 542         |
+| 18          | 498         |
+| 17          | 494         |
+| 15          | 477         |
+| 14          | 432         |
+
+This could help to decide at which hours put some marketing or
+promotions to free users.
+
+**About ETL pipeline**
+
+The `ETL` pipeline could have some issues, for example, as seeing in the
+image results, there a lot of missing artists and songs IDs, at this
+point it is required to speak with Sparkify's responsibles, because it
+is important to know how to assing those IDs, using an arbitrary ID?
+waiting until new songs data files appears?
+
 > <br><br> <!-- Blank line -->
 >

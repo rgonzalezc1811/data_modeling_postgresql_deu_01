@@ -51,8 +51,8 @@ user_table_create = (
     "CREATE TABLE IF NOT EXISTS users\n"
     "(\n"
     "    user_id int PRIMARY KEY,\n"
-    "    first_name varchar(32),\n"
-    "    last_name varchar(32),\n"
+    "    first_name varchar(256),\n"
+    "    last_name varchar(256),\n"
     "    gender CHAR(1),\n"
     "    level varchar(32),\n"
     "    CHECK (user_id >= 0),\n"
@@ -65,8 +65,8 @@ artist_table_create = (
     "CREATE TABLE IF NOT EXISTS artists\n"
     "(\n"
     "    artist_id char(18) PRIMARY KEY,\n"
-    "    \"name\" varchar(32),\n"
-    "    location varchar(128),\n"
+    "    \"name\" varchar(256),\n"
+    "    location varchar(512),\n"
     "    latitude numeric(7, 5),\n"
     "    longitude numeric(8, 5),\n"
     "    CHECK (latitude >= -90 AND latitude <= 90),\n"
@@ -79,11 +79,11 @@ song_table_create = (
     "CREATE TABLE IF NOT EXISTS songs\n"
     "(\n"
     "    song_id char(18) PRIMARY KEY,\n"
-    "    title varchar(128),\n"
+    "    title varchar(256),\n"
     "    artist_id char(18),\n"
     "    \"year\" smallint,\n"
-    "    duration numeric(8, 5),\n"
-    "    CHECK (\"year\" >= 0),\n"
+    "    duration numeric(9, 5),\n"
+    "    CHECK (\"year\" >= 0 AND \"year\" <= 2999),\n"
     "    CHECK (duration > 0),\n"
     "    FOREIGN KEY (artist_id)\n"
     "    REFERENCES artists (artist_id) ON DELETE SET NULL"
@@ -94,14 +94,14 @@ song_table_create = (
 songplay_table_create = (
     "CREATE TABLE IF NOT EXISTS songplay\n"
     "(\n"
-    "    songplay_id char(18) PRIMARY KEY,\n"
+    "    songplay_id serial PRIMARY KEY,\n"
     "    start_time timestamp NOT NULL,\n"
     "    user_id int,\n"
     "    level varchar(32),\n"
     "    song_id char(18),\n"
     "    artist_id char(18),\n"
     "    session_id int,\n"
-    "    location varchar(128),\n"
+    "    location varchar(512),\n"
     "    user_agent text,\n"
     "    CHECK (session_id > 0),\n"
     "    CHECK (user_id > 0),\n"
@@ -152,7 +152,7 @@ def artist_table_insert(dataframe, verbose=False):
     dataframe = re.sub(r'\[', r'    (', dataframe)
     dataframe = re.sub(r'\]', r')', dataframe)
     dataframe = re.sub(r'\), ', r'),\n', dataframe)
-    dataframe = re.sub(r'nan', r'NULL', dataframe)
+    dataframe = re.sub(r'nan|\'nan\'', r'NULL', dataframe)
     dataframe = re.sub("<single_quote_tag>", "''", dataframe)
     dataframe += '\n'
     query = (
@@ -204,7 +204,7 @@ def song_table_insert(dataframe, verbose=False):
     dataframe = re.sub(r'\[', r'    (', dataframe)
     dataframe = re.sub(r'\]', r')', dataframe)
     dataframe = re.sub(r'\), ', r'),\n', dataframe)
-    dataframe = re.sub(r'nan', r'NULL', dataframe)
+    dataframe = re.sub(r'nan|\'nan\'', r'NULL', dataframe)
     dataframe = re.sub("<single_quote_tag>", "''", dataframe)
     dataframe += '\n'
     query = (
@@ -319,6 +319,7 @@ def user_table_insert(dataframe, verbose=False):
     dataframe = re.sub(r'\]', r')', dataframe)
     dataframe = re.sub(r'\), ', r'),\n', dataframe)
     dataframe = re.sub("<single_quote_tag>", "''", dataframe)
+    dataframe = re.sub(r'nan|\'nan\'', r'NULL', dataframe)
     dataframe += '\n'
     query = (
         "INSERT INTO users\n"
@@ -342,8 +343,66 @@ songplay_table_insert = ("""
 """)
 
 # FIND SONGS
-song_select = ("""
-""")
+def song_select(dataframe, verbose=False):
+    """Query to find artist IDs and song IDs by names.
+
+    Input the artist name and song title, the query is designed to
+    return the artist ID and song ID instead.
+
+    Parameters
+    ----------
+    dataframe : Pandas Dataframe
+        description -> Dataframe with the uer data
+        format -> Headers: ["song_name", "artist_name",]
+        options -> No apply
+
+    verbose : bool
+        description -> Print process workflow or results, useful for
+            debugging
+        format -> No apply
+        options -> No apply
+
+    Returns
+    -------
+    query : string
+        description -> The complete SQL statement to load IDs
+        format -> No apply
+        options -> No apply
+    """
+    dataframe = str(dataframe.values.tolist())[1:-1]
+    dataframe = re.sub(r'\[', r'        (', dataframe)
+    dataframe = re.sub(r'\]', r')', dataframe)
+    dataframe = re.sub(r'\), ', r'),\n', dataframe)
+    dataframe = re.sub("<single_quote_tag>", "''", dataframe)
+    dataframe = re.sub(r'nan|\'nan\'', r'NULL', dataframe)
+    dataframe += '\n'
+    query = (
+        "SELECT song_artist.song_id, song_artist.artist_id\n"
+        "FROM (\n"
+        "    SELECT title, \"name\"\n"
+        "    FROM (\n"
+        "        VALUES\n"
+        f"{dataframe}"
+        "    ) AS headers (title, \"name\")\n"
+        ") AS input_data\n"
+        "JOIN (\n"
+        "    SELECT\n"
+        "        songs.song_id,\n"
+        "        songs.title,\n"
+        "        artists.artist_id,\n"
+        "        artists.\"name\"\n"
+        "    FROM songs\n"
+        "    FULL JOIN artists\n"
+        "    ON songs.artist_id = artists.artist_id\n"
+        ") song_artist\n"
+        "ON input_data.title = song_artist.title\n"
+        "AND input_data.\"name\" = song_artist.\"name\";\n"
+    )
+
+    if verbose:
+        print(f"SQL statement:\n{query}\n")
+
+    return query
 
 # QUERY LISTS
 create_table_queries = [

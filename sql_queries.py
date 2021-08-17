@@ -403,16 +403,16 @@ def songplay_table_insert(dataframe, verbose=False):
 
 # FIND SONGS
 def song_select(dataframe, verbose=False):
-    """Query to find artist IDs and song IDs by names.
+    """Query to find artist IDs and song IDs by names and song duration.
 
-    Input the artist name and song title, the query is designed to
-    return the artist ID and song ID instead.
+    Input the artist name, song title, and song length; the query is
+    designed to return the artist ID and song ID instead.
 
     Parameters
     ----------
     dataframe : Pandas Dataframe
         description -> Dataframe with the uer data
-        format -> Headers: ["song_name", "artist_name",]
+        format -> Headers: ["song_name", "artist_name", "length"]
         options -> No apply
 
     verbose : bool
@@ -438,16 +438,17 @@ def song_select(dataframe, verbose=False):
     query = (
         "SELECT song_artist.song_id, song_artist.artist_id\n"
         "FROM (\n"
-        "    SELECT title, \"name\"\n"
+        "    SELECT title, \"name\", length\n"
         "    FROM (\n"
         "        VALUES\n"
         f"{dataframe}"
-        "    ) AS headers (title, \"name\")\n"
+        "    ) AS headers (title, \"name\", length)\n"
         ") AS input_data\n"
         "JOIN (\n"
         "    SELECT\n"
         "        songs.song_id,\n"
         "        songs.title,\n"
+        "        songs.duration,\n"
         "        artists.artist_id,\n"
         "        artists.\"name\"\n"
         "    FROM songs\n"
@@ -455,6 +456,7 @@ def song_select(dataframe, verbose=False):
         "    ON songs.artist_id = artists.artist_id\n"
         ") song_artist\n"
         "ON input_data.title = song_artist.title\n"
+        "AND input_data.length = song_artist.duration""\n"
         "AND input_data.\"name\" = song_artist.\"name\";\n"
     )
 

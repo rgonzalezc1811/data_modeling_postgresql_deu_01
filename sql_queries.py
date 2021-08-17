@@ -339,8 +339,67 @@ def user_table_insert(dataframe, verbose=False):
 
     return query
 
-songplay_table_insert = ("""
-""")
+def songplay_table_insert(dataframe, verbose=False):
+    """Query to insert data from dataframe 'logs'.
+
+    Insert the required data in the table 'songplay'.
+
+    Parameters
+    ----------
+    dataframe : Pandas Dataframe
+        description -> Dataframe with the uer data
+        format -> Headers: [
+            "time_start",
+            "user_id",
+            "level",
+            "song_id",
+            "artist_id",
+            "session_id",
+            "location",
+            "user_agent"
+        ]
+        options -> No apply
+
+    verbose : bool
+        description -> Print process workflow or results, useful for
+            debugging
+        format -> No apply
+        options -> No apply
+
+    Returns
+    -------
+    query : string
+        description -> The complete SQL statement
+        format -> No apply
+        options -> No apply
+    """
+    dataframe = str(dataframe.values.tolist())[1:-1]
+    dataframe = re.sub(r'\[', r'    (', dataframe)
+    dataframe = re.sub(r'\]', r')', dataframe)
+    dataframe = re.sub(r'\), ', r'),\n', dataframe)
+    dataframe = re.sub("<single_quote_tag>", "''", dataframe)
+    dataframe = re.sub(r'nan|\'nan\'', r'NULL', dataframe)
+    dataframe += '\n'
+    query = (
+        "INSERT INTO songplay (\n"
+        "    start_time,\n"
+        "    user_id,\n"
+        "    level,\n"
+        "    song_id,\n"
+        "    artist_id,\n"
+        "    session_id,\n"
+        "    location,\n"
+        "    user_agent\n"
+        ")\n"
+        "VALUES\n"
+        f"{dataframe}"
+        ";\n"
+    )
+
+    if verbose:
+        print(f"SQL statement:\n{query}\n")
+
+    return query
 
 # FIND SONGS
 def song_select(dataframe, verbose=False):
@@ -392,7 +451,7 @@ def song_select(dataframe, verbose=False):
         "        artists.artist_id,\n"
         "        artists.\"name\"\n"
         "    FROM songs\n"
-        "    FULL JOIN artists\n"
+        "    JOIN artists\n"
         "    ON songs.artist_id = artists.artist_id\n"
         ") song_artist\n"
         "ON input_data.title = song_artist.title\n"

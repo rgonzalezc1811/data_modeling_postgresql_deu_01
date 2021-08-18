@@ -436,15 +436,17 @@ def song_select(dataframe, verbose=False):
     dataframe = re.sub(r'nan|\'nan\'', r'NULL', dataframe)
     dataframe += '\n'
     query = (
-        "SELECT song_artist.song_id, song_artist.artist_id\n"
+        "SELECT\n"
+        "    song_artist.song_id song, --input_data.song\n"
+        "    song_artist.artist_id artist --input_data.artist\n"
         "FROM (\n"
-        "    SELECT title, \"name\", length\n"
+        "    SELECT idx, song, artist, duration\n"
         "    FROM (\n"
         "        VALUES\n"
         f"{dataframe}"
-        "    ) AS headers (title, \"name\", length)\n"
+        "    ) AS headers (idx, song, artist, duration)\n"
         ") AS input_data\n"
-        "JOIN (\n"
+        "LEFT JOIN (\n"
         "    SELECT\n"
         "        songs.song_id,\n"
         "        songs.title,\n"
@@ -452,12 +454,13 @@ def song_select(dataframe, verbose=False):
         "        artists.artist_id,\n"
         "        artists.\"name\"\n"
         "    FROM songs\n"
-        "    JOIN artists\n"
+        "    LEFT JOIN artists\n"
         "    ON songs.artist_id = artists.artist_id\n"
         ") song_artist\n"
-        "ON input_data.title = song_artist.title\n"
-        "AND input_data.length = song_artist.duration""\n"
-        "AND input_data.\"name\" = song_artist.\"name\";\n"
+        "ON input_data.song = song_artist.title\n"
+        "AND input_data.artist = song_artist.\"name\"\n"
+        "AND input_data.duration = song_artist.duration\n"
+        "ORDER BY input_data.idx ASC;\n"
     )
 
     if verbose:

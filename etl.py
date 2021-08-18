@@ -65,7 +65,7 @@ def process_log_file(cur, filepath):
     time_data = list(
         map(
             lambda item: [
-                item.strftime('%Y-%m-%dT%H:%M:%S'),
+                item,
                 item.hour,
                 item.day,
                 item.week,
@@ -73,7 +73,7 @@ def process_log_file(cur, filepath):
                 item.year,
                 item.weekday() + 1
             ],
-            df["ts"]
+            df["ts"].copy()
         )
     )
     column_labels = [
@@ -82,6 +82,8 @@ def process_log_file(cur, filepath):
     time_list_dict = [dict(zip(column_labels, row)) for row in time_data]
     time_df = pd.DataFrame(time_list_dict)
     time_df = time_df.drop_duplicates()
+    time_df = time_df[column_labels]
+    time_df["start_time"] = time_df["start_time"].dt.strftime('%Y-%m-%dT%H:%M:%S')
 
     for _, row in time_df.iterrows():
         cur.execute(sq.time_table_insert(time_df))
@@ -175,7 +177,7 @@ def process_data(cur, conn, filepath, func):
 def main():
     conn = psycopg2.connect(
         user="admin",
-        password="<password>",
+        password="98573Hgte",
         host="localhost",
         port="5432",
         dbname="sparkifydb"

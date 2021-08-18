@@ -177,7 +177,7 @@ def process_data(cur, conn, filepath, func):
 def main():
     conn = psycopg2.connect(
         user="admin",
-        password="98573Hgte",
+        password="<password>",
         host="localhost",
         port="5432",
         dbname="sparkifydb"

@@ -14,13 +14,16 @@ define a Fact and Dimension tables.
 ## **Table of Content** <!-- omit in toc -->
 - [Introduction](#introduction)
 - [Project Description](#project-description)
-- [Datasets](#datasets)
-  - [Song Dataset](#song-dataset)
-  - [Log Dataset](#log-dataset)
+- [Project Development](#project-development)
+  - [Datasets](#datasets)
+    - [Download the Datasets](#download-the-datasets)
+    - [Dataset Tree Directory](#dataset-tree-directory)
+    - [Song Dataset](#song-dataset)
+    - [Log Dataset](#log-dataset)
+    - [Entity Relational Diagram (ERD)](#entity-relational-diagram-erd)
 - [Development](#development)
   - [Database](#database)
     - [Schema](#schema)
-    - [Entity Relational Diagram (ERD)](#entity-relational-diagram-erd)
     - [Local Database Setup](#local-database-setup)
   - [Files Description](#files-description)
   - [Tables Creation](#tables-creation)
@@ -28,6 +31,7 @@ define a Fact and Dimension tables.
   - [ETL Pipeline](#etl-pipeline)
   - [Results](#results)
   - [Discussion](#discussion)
+
 <br/><br/> <!-- Blank line -->
 
 # Introduction
@@ -44,9 +48,10 @@ It is required to a **PostgresSQL database** with tables designed to
 optimize queries on song play analysis **creating a database schema**
 and **ETL pipeline** for this analysis. 
 
-The database and ETL process are requited to be tested database by
-running queries given by the analytics team from Sparkify and compare
-the results with their expected results.
+The database and ETL process are requited to be tested by running given
+queries by the analytics team from Sparkify and comparing the outputs
+with the expected results.
+
 <br/><br/> <!-- Blank line -->
 
 # Project Description
@@ -57,16 +62,61 @@ tables are designed in a **star schema** for a particular analytic
 focus, and the ETL pipeline **transfers data from files** in two local
 directories into the mentioned **tables** in PostgreSQL using Python and
 SQL.
+
 <br/><br/> <!-- Blank line -->
 
-# Datasets
+# Project Development
 
-The required `JSON` files are stored in an open public drive, just click
-in the followwing
-[link](https://drive.google.com/file/d/1Xml-N_wHf81WPeRHXjrBk7QTqF3988LW/view?usp=sharing)
-and download the `ZIP`, unzzip the files in the root path of the current
-repository folder, all data is located in the folder called **data**,
-the following diagram shows the expected directory tree of the data.
+To develop all the project, it is already defined the Schema, but no the
+complete database structure, also, the raw data is only available in
+`JSON` files, so a ETL pipeline is required, the following sections
+describe how the project is handled.
+
+<br/><br/> <!-- Blank line -->
+
+## Datasets
+
+To understand the requirements, business purposes and technical
+characteristics of the project the first step is get the datasets into
+the development environment.
+
+<br/><br/> <!-- Blank line -->
+
+### Download the Datasets
+
+1. Access to Udacity's Project Workspace and open a `Terminal`.
+
+<!-- Original image size [1369 820] -->
+<div align="center">
+  <img width="547" height="328" src="img/udacity_workspace_1.png" />
+</div>
+<br/><br/> <!-- Blank line -->
+
+2. Inside the terminal type the following command:
+   ```bash
+   zip -r data.zip data
+   ```
+
+3. In the workspace directory (`/home/workspace`) a new file will appear
+   and it is called `data.zip`, download the file.
+
+   <!-- Original image size [822 632] -->
+<div align="center">
+  <img width="493" height="379" src="img/data_zip.png" />
+</div>
+<br/><br/> <!-- Blank line -->
+
+4. On this case, the `data.zip` is also available in a personal
+   [drive](https://drive.google.com/file/d/1TfPWGYwNFL_Y8t21z3kUL6s7B0sBt2EF/view?usp=sharing)
+   to download the datasets.
+
+<br/><br/> <!-- Blank line -->
+
+### Dataset Tree Directory
+
+Locate the `data` directory in the root path of the development
+environment, all `JSON` files are located here, the following diagram
+shows the current directory tree.
 
 ```bash
 <root_path>/data_modeling_postgresql_deu_01/data
@@ -86,17 +136,30 @@ the following diagram shows the expected directory tree of the data.
 ```
 <br/><br/> <!-- Blank line -->
 
-## Song Dataset
+### Song Dataset
 
 Subset of real data from the **Million Song Dataset**. Each file is in
 `JSON` format and contains _metadata_ about a song and the artist of
 that song. The files are partitioned by the first three letters of each
-song's track ID. Below are filepaths of two files in the dataset.
+song's track ID. Below are the root tree directory and filepath examples
+of two files in the dataset.
+
+```bash
+<root_path>/data_modeling_postgresql_deu_01/data/song_data
+└───A
+   ├───A
+   │   ├───A
+   │   ├───B
+   │   └───C
+   └───B
+      ├───A
+      ├───B
+      └───C
+```
 
 
 * `<root_path>/data_modeling_postgresql_deu_01/data/song_data/A/A/B/TRAABCL128F4286650.json`
 * `<root_path>/data_modeling_postgresql_deu_01/data/song_data/A/B/C/TRABCYE128F934CE1D.json`
-
 
 Below is an example of what a single song file looks like
 (`TRABCAJ12903CDFCC2.json`):
@@ -115,25 +178,42 @@ Below is an example of what a single song file looks like
   "year": 0
 }
 ```
+
+It is important to identify what are the content of the available files,
+sometimes, the name of the attributes helps to know the type of data to
+store, for example, the `duration` attribute and current value indicates
+that is not possible to have sentences here, so at designing the
+database a good type of data could be `float` or `numeric`.
+
+It is a recommendation to **visualize more than one** `JSON` file, it
+helps to understand data better and identify possible inconsistencies or
+common missing values.
+
 <br/><br/> <!-- Blank line -->
 
-## Log Dataset
+### Log Dataset
 
 Consists of **log files** in `JSON` format generated by this event
 simulator based on the songs in the dataset songs. These simulate
 activity logs from a music streaming app based on specified
-configurations.
+configurations.  Below are the root tree directory and filepath examples
+of two files in the dataset,  the log files in the dataset are
+partitioned by year and month.
 
-The log files in the dataset are partitioned by year and month. Below
-are filepaths to two files in the dataset.
+```bash
+<root_path>/data_modeling_postgresql_deu_01/data/log_data
+├───log_data
+    └───2018
+        └───11
+```
 
 * `<root_path>/data_modeling_postgresql_deu_01/data/log_data/2018/11/2018-11-12-events.json`
 * `<root_path>/data_modeling_postgresql_deu_01/data/log_data/2018/11/2018-11-13-events.json`
 
-To look at the `JSON` data within log_data files, create a pandas
+To look at the `JSON` data within `log_data` files, create a pandas
 dataframe to read the data (code example below), after the code block
 example, there is an example of what the data in a log file
-(`2018-11-12-events.json`) looks like:
+(`2018-11-12-events.json`) looks like.
 
 ```Python
 import json
@@ -153,12 +233,47 @@ songs_logs_df.head()
 </div>
 <br/><br/> <!-- Blank line -->
 
-> **Additional Resources**:
+As mentioned in the previous section, it is important to identify what
+are the content of the available files, the name of the attributes helps
+to know the type of data to store, for example, the `page` attribute
+and values indicates that is possible to have only specific values and
+no numbers, just strings, so at designing the database a good type of
+data could be `varchar` or `text`.
+
+It is a recommendation to **visualize more than one** `JSON` file, it
+helps to understand data better and identify possible inconsistencies or
+common missing values.
+
+> **Comments**:
 > 
-> * [JSON file format (video)](https://www.youtube.com/watch?time_continue=1&v=hO2CayzZBoA).
+> * Use this
+>   [JSON file format (video)](https://www.youtube.com/watch?time_continue=1&v=hO2CayzZBoA).
+>   resource to better understand the JSON files.
+> * HINT: Use the `value_counts` method on log dataframes, this is a
+>   good option to identify attributes that store only specific values,
+>   e.g:
+> 
+>       `df["attribute_n"].value_counts()`
 > <br/><br/> <!-- Blank line -->
 > 
 <br/><br/> <!-- Blank line -->
+
+### Entity Relational Diagram (ERD)
+
+The `Star Schema` designed allows to create queries easily to retrieve
+specific business metrics, the Sparkify's ERD is showed bewllow.
+
+<!-- Original image size [1448 1053] -->
+<br/><br/> <!-- Blank line -->
+<div align="center">
+  <img width="868" height="632" src="img/erd.png"/>
+</div>
+<br/><br/> <!-- Blank line -->
+
+
+<br/><br/> <!-- Blank line -->
+
+
 
 # Development
 
@@ -234,14 +349,7 @@ is created, optimized for queries on song play analysis.
     * weekday
     <br/><br/> <!-- Blank line -->
 
-### Entity Relational Diagram (ERD)
 
-<!-- Original image size [1448 1053] -->
-<br/><br/> <!-- Blank line -->
-<div align="center">
-  <img width="868" height="632" src="img/erd.png"/>
-</div>
-<br/><br/> <!-- Blank line -->
 
 ### Local Database Setup
 

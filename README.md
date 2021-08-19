@@ -8,7 +8,7 @@
 <br/><br/> <!-- Blank line -->
 
 Model user activity data to create a database and **ETL** (**Extract,
-Trandform, Load**) pipeline in PostgreSQL for a music streaming app and
+Transform, Load**) pipeline in PostgreSQL for a music streaming app and
 define a Fact and Dimension tables.
 
 ## **Table of Content** <!-- omit in toc -->
@@ -173,7 +173,7 @@ of two files in the dataset.
 Below is an example of what a single song file looks like
 (`TRABCAJ12903CDFCC2.json`):
 <br/><br/> <!-- Blank line -->
-```JSON
+```python
 {
   "num_songs": 1,
   "artist_id": "ARULZCI1241B9C8611",
@@ -189,7 +189,7 @@ Below is an example of what a single song file looks like
 ```
 <br/><br/> <!-- Blank line -->
 
-It is important to identify what are the content of the available files,
+It is important to identify what is the content of the available files,
 sometimes, the name of the attributes helps to know the type of data to
 store, for example, the `duration` attribute and current value indicates
 that is not possible to have sentences here, so at designing the
@@ -227,7 +227,7 @@ example, there is an example of what the data in a log file
 (`2018-11-12-events.json`) looks like. 
 <br/><br/> <!-- Blank line -->
 
-```Python
+```python
 import json
 import os
 import pandas as pd

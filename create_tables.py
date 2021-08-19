@@ -14,7 +14,7 @@ import traceback
 import psycopg2
 
 # Propietary imports
-import sql_queries as sq
+import sql_queries
 
 def create_database():
     """Creates and connects to the 'data_modeling_postgres_01' database
@@ -101,6 +101,7 @@ def drop_tables(cur, conn):
         format -> No apply
         options -> No apply
     """
+    sq = sql_queries.Queries()
     for query in sq.drop_table_queries:
         cur.execute(query)
         conn.commit()
@@ -125,6 +126,7 @@ def create_tables(cur, conn):
         format -> No apply
         options -> No apply
     """
+    sq = sql_queries.Queries()
     for query in sq.create_table_queries:
         cur.execute(query)
         conn.commit()

@@ -101,8 +101,8 @@ def drop_tables(cur, conn):
         format -> No apply
         options -> No apply
     """
-    sq = sql_queries.Queries()
-    for query in sq.drop_table_queries:
+    sql = sql_queries.Queries()
+    for query in sql.drop_table_queries:
         cur.execute(query)
         conn.commit()
 
@@ -126,8 +126,8 @@ def create_tables(cur, conn):
         format -> No apply
         options -> No apply
     """
-    sq = sql_queries.Queries()
-    for query in sq.create_table_queries:
+    sql = sql_queries.Queries()
+    for query in sql.create_table_queries:
         cur.execute(query)
         conn.commit()
 
